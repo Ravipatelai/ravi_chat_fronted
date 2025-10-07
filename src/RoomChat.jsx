@@ -17,12 +17,10 @@ export default function RoomChat() {
 
   const chatEndRef = useRef(null);
 
-  // Auto scroll when new message arrives
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
 
-  // Auto scroll on mobile keyboard open (viewport resize)
   useEffect(() => {
     const handleResize = () => {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -86,7 +84,6 @@ export default function RoomChat() {
     navigator.clipboard.writeText(text);
   };
 
-  // framer-motion variants
   const titleVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.98 },
     show: {
@@ -110,10 +107,9 @@ export default function RoomChat() {
   const btnTap = { scale: 0.97 };
 
   return (
-    <div className="w-full h-[100vh] min-h-[100dvh] flex flex-col bg-gray-100">
+    <div className="w-full flex flex-col bg-gray-100 min-h-[100dvh]">
       {!joinedRoom && (
         <div className="flex-1 flex flex-col items-center justify-center p-4 w-full text-center">
-          {/* Animated Title + Logo */}
           <motion.div
             initial="hidden"
             animate="show"
@@ -150,7 +146,6 @@ export default function RoomChat() {
             </motion.p>
           </motion.div>
 
-          {/* Name Input */}
           <motion.input
             type="text"
             placeholder="Enter your name"
@@ -162,7 +157,6 @@ export default function RoomChat() {
             transition={{ delay: 0.35 }}
           />
 
-          {/* Room ID + Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
             <motion.button
               onClick={createRoom}
@@ -197,8 +191,8 @@ export default function RoomChat() {
       )}
 
       {joinedRoom && (
-        <div className="flex flex-col w-full h-full">
-          {/* Header / Controls */}
+        <div className="flex flex-col w-full flex-1">
+          {/* Header */}
           <div className="p-2 bg-gray-200 flex gap-2 w-full">
             <button
               className="px-3 py-1 bg-gray-700 text-white cursor-pointer rounded"
@@ -244,8 +238,8 @@ export default function RoomChat() {
             </div>
           )}
 
-          {/* 💬 Chat Area */}
-          <div className="flex-1 overflow-y-auto p-3 pb-24 bg-gray-50 flex flex-col min-h-0">
+          {/* Chat Area */}
+          <div className="flex-1 overflow-y-auto p-3 pb-24 flex flex-col">
             {chat.map((c, i) => {
               const isMe = c.sender === username;
               return (
@@ -266,7 +260,7 @@ export default function RoomChat() {
                 </div>
               );
             })}
-            <div ref={chatEndRef} /> {/* Auto-scroll target */}
+            <div ref={chatEndRef} />
           </div>
 
           {/* Input Box */}
