@@ -66,9 +66,8 @@ export default function RoomChat() {
     setMessage("");
   };
 
-  const copyToClipboard = (text, label) => {
+  const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    
   };
 
   // framer-motion variants
@@ -84,14 +83,18 @@ export default function RoomChat() {
 
   const logoPulse = {
     rest: { scale: 1 },
-    hover: { scale: 1.08, rotate: [0, 3, -3, 0], transition: { duration: 0.6 } },
+    hover: {
+      scale: 1.08,
+      rotate: [0, 3, -3, 0],
+      transition: { duration: 0.6 },
+    },
     tap: { scale: 0.96 },
   };
 
   const btnTap = { scale: 0.97 };
 
   return (
-    <div className="w-full h-screen flex flex-col bg-gray-100">
+    <div className="w-full h-[100dvh] flex flex-col bg-gray-100">
       {!joinedRoom && (
         <div className="flex-1 flex flex-col items-center justify-center p-4 w-full text-center">
           {/* Animated Title + small animated logo */}
@@ -157,7 +160,7 @@ export default function RoomChat() {
             <motion.input
               type="text"
               placeholder="Room ID"
-              className="border p-2  rounded flex-1"
+              className="border p-2 rounded flex-1"
               value={roomId}
               onChange={(e) => setRoomId(e.target.value)}
               initial={{ opacity: 0 }}
@@ -207,8 +210,8 @@ export default function RoomChat() {
                 Room ID: {joinedRoom}
               </div>
               <button
-                onClick={() => copyToClipboard(joinedRoom, "Room ID")}
-                className="px-2 py-1 bg-blue-600  text-white rounded"
+                onClick={() => copyToClipboard(joinedRoom)}
+                className="px-2 py-1 bg-blue-600 text-white rounded"
               >
                 Copy
               </button>
@@ -226,7 +229,7 @@ export default function RoomChat() {
           )}
 
           {/* 💬 Chat Area */}
-          <div className="flex-1 overflow-y-auto p-3 bg-gray-50 flex flex-col">
+          <div className="flex-1 overflow-y-auto p-3 bg-gray-50 flex flex-col-reverse min-h-0">
             {chat.map((c, i) => {
               const isMe = c.sender === username;
               return (
@@ -248,7 +251,7 @@ export default function RoomChat() {
           </div>
 
           {/* ⌨️ Input Fixed Bottom */}
-          <div className="p-2 bg-white flex gap-2 border-t w-full pb-[env(safe-area-inset-bottom)] mb-4">
+          <div className="p-2 bg-white flex gap-2 border-t w-full sticky bottom-0">
             <input
               type="text"
               placeholder="Type a message..."
