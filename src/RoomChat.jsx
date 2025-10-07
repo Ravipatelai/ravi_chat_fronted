@@ -11,18 +11,18 @@ export default function RoomChat() {
   const [chat, setChat] = useState([]);
   const [message, setMessage] = useState("");
   const [username, setUsername] = useState("");
-
   const [showRoomId, setShowRoomId] = useState(false);
   const [showPlayers, setShowPlayers] = useState(false);
 
   const chatEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
-  // Auto scroll when new message arrives
+  // Scroll to bottom whenever chat changes
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
 
-  // Auto scroll on mobile keyboard open (viewport resize)
+  // Scroll on window resize (keyboard open/close)
   useEffect(() => {
     const handleResize = () => {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -86,135 +86,61 @@ export default function RoomChat() {
     navigator.clipboard.writeText(text);
   };
 
-  // framer-motion variants
-  const titleVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.98 },
-    show: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: { type: "spring", stiffness: 120, damping: 14 },
-    },
-  };
-
-  const logoPulse = {
-    rest: { scale: 1 },
-    hover: {
-      scale: 1.08,
-      rotate: [0, 3, -3, 0],
-      transition: { duration: 0.6 },
-    },
-    tap: { scale: 0.96 },
-  };
-
-  const btnTap = { scale: 0.97 };
-
   return (
-    <div className="w-full h-[100vh] min-h-[100dvh] flex flex-col bg-gray-100">
-      {!joinedRoom && (
+    <div className="w-full h-[100vh] flex flex-col bg-gray-100">
+      {!joinedRoom ? (
         <div className="flex-1 flex flex-col items-center justify-center p-4 w-full text-center">
-          {/* Animated Title + Logo */}
-          <motion.div
-            initial="hidden"
-            animate="show"
-            variants={titleVariants}
-            className="mb-6 flex flex-col items-center"
-          >
-            <motion.div
-              className="w-20 h-20 rounded-full flex items-center justify-center mb-3 shadow-lg bg-gradient-to-br from-blue-400 to-indigo-500 text-white text-xl font-bold"
-              variants={logoPulse}
-              whileHover="hover"
-              whileTap="tap"
-              initial="rest"
-              animate="rest"
-            >
-              RC
-            </motion.div>
-
-            <motion.h1
-              className="text-3xl font-bold text-blue-600"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.12, duration: 0.45 }}
-            >
-              Ravi Chatting App
-            </motion.h1>
-
-            <motion.p
-              className="text-sm text-gray-600 mt-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.25 }}
-            >
-              Made with ❤️ by Ravi
-            </motion.p>
-          </motion.div>
-
-          {/* Name Input */}
-          <motion.input
+          <h1 className="text-3xl font-bold text-blue-600 mb-4">
+            Ravi Chatting App
+          </h1>
+          <input
             type="text"
             placeholder="Enter your name"
             className="border p-2 rounded w-full max-w-md mb-4"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
           />
-
-          {/* Room ID + Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
-            <motion.button
+            <button
               onClick={createRoom}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg w-full sm:w-auto cursor-pointer shadow-sm"
-              whileTap={btnTap}
-              whileHover={{ y: -2 }}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg w-full sm:w-auto"
             >
               Create Room
-            </motion.button>
-
-            <motion.input
+            </button>
+            <input
               type="text"
               placeholder="Room ID"
               className="border p-2 rounded flex-1"
               value={roomId}
               onChange={(e) => setRoomId(e.target.value)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.42 }}
             />
-
-            <motion.button
+            <button
               onClick={joinRoom}
-              className="px-4 py-2 bg-blue-600 text-white cursor-pointer rounded-lg w-full sm:w-auto shadow-sm"
-              whileTap={btnTap}
-              whileHover={{ y: -2 }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg w-full sm:w-auto"
             >
               Join Room
-            </motion.button>
+            </button>
           </div>
         </div>
-      )}
-
-      {joinedRoom && (
+      ) : (
         <div className="flex flex-col w-full h-full">
-          {/* Header / Controls */}
-          <div className="p-2 bg-gray-200 flex gap-2 w-full">
+          {/* Header */}
+          <div className="p-2 bg-gray-200 flex gap-2">
             <button
-              className="px-3 py-1 bg-gray-700 text-white cursor-pointer rounded"
+              className="px-3 py-1 bg-gray-700 text-white rounded"
               onClick={() => setShowRoomId(!showRoomId)}
             >
               {showRoomId ? "Hide Room ID" : "Show Room ID"}
             </button>
             <button
-              className="px-3 py-1 cursor-pointer bg-gray-700 text-white rounded"
+              className="px-3 py-1 bg-gray-700 text-white rounded"
               onClick={() => setShowPlayers(!showPlayers)}
             >
               {showPlayers ? "Hide Name" : "Show Name"}
             </button>
             <button
               onClick={leaveRoom}
-              className="px-3 py-1 bg-red-600 text-white cursor-pointer rounded"
+              className="px-3 py-1 bg-red-600 text-white rounded"
             >
               Leave Room
             </button>
@@ -244,14 +170,17 @@ export default function RoomChat() {
             </div>
           )}
 
-          {/* 💬 Chat Area */}
-          <div className="flex-1 overflow-y-auto p-3 pb-22 bg-gray-50 flex flex-col min-h-0">
+          {/* Chat area */}
+          <div
+            ref={chatContainerRef}
+            className="flex-1 overflow-y-auto p-3 pb-24 bg-gray-50 flex flex-col"
+          >
             {chat.map((c, i) => {
               const isMe = c.sender === username;
               return (
                 <div
                   key={i}
-                  className={`px-2 py-1 rounded-lg max-w-[40%] mb-1  ${
+                  className={`px-2 py-1 rounded-lg max-w-[80%] mb-1 ${
                     isMe
                       ? "bg-blue-500 text-white self-end"
                       : c.sender === "System"
@@ -264,10 +193,10 @@ export default function RoomChat() {
                 </div>
               );
             })}
-            <div ref={chatEndRef} /> {/* Auto-scroll target */}
+            <div ref={chatEndRef} />
           </div>
 
-          {/* Input Box (fixed) */}
+          {/* Input */}
           <div className="p-2 bg-white flex gap-2 border-t w-full fixed bottom-0 left-0 right-0">
             <input
               type="text"
@@ -277,13 +206,12 @@ export default function RoomChat() {
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
-            <motion.button
-              className="px-4 py-2 bg-blue-600 text-white cursor-pointer rounded"
+            <button
               onClick={sendMessage}
-              whileTap={{ scale: 0.97 }}
+              className="px-4 py-2 bg-blue-600 text-white rounded"
             >
               Send
-            </motion.button>
+            </button>
           </div>
         </div>
       )}
