@@ -11,18 +11,18 @@ export default function RoomChat() {
   const [chat, setChat] = useState([]);
   const [message, setMessage] = useState("");
   const [username, setUsername] = useState("");
+
   const [showRoomId, setShowRoomId] = useState(false);
   const [showPlayers, setShowPlayers] = useState(false);
 
   const chatEndRef = useRef(null);
-  const chatContainerRef = useRef(null);
 
-  // Scroll to bottom whenever chat changes
+  // Auto scroll when new message arrives
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
 
-  // Scroll on window resize (keyboard open/close)
+  // Auto scroll on mobile keyboard open (viewport resize)
   useEffect(() => {
     const handleResize = () => {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -86,61 +86,135 @@ export default function RoomChat() {
     navigator.clipboard.writeText(text);
   };
 
+  // framer-motion variants
+  const titleVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.98 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { type: "spring", stiffness: 120, damping: 14 },
+    },
+  };
+
+  const logoPulse = {
+    rest: { scale: 1 },
+    hover: {
+      scale: 1.08,
+      rotate: [0, 3, -3, 0],
+      transition: { duration: 0.6 },
+    },
+    tap: { scale: 0.96 },
+  };
+
+  const btnTap = { scale: 0.97 };
+
   return (
-    <div className="w-full h-[100vh] flex flex-col bg-gray-100">
-      {!joinedRoom ? (
+    <div className="w-full h-[100vh] min-h-[100dvh] flex flex-col bg-gray-100">
+      {!joinedRoom && (
         <div className="flex-1 flex flex-col items-center justify-center p-4 w-full text-center">
-          <h1 className="text-3xl font-bold text-blue-600 mb-4">
-            Ravi Chatting App
-          </h1>
-          <input
+          {/* Animated Title + Logo */}
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={titleVariants}
+            className="mb-6 flex flex-col items-center"
+          >
+            <motion.div
+              className="w-20 h-20 rounded-full flex items-center justify-center mb-3 shadow-lg bg-gradient-to-br from-blue-400 to-indigo-500 text-white text-xl font-bold"
+              variants={logoPulse}
+              whileHover="hover"
+              whileTap="tap"
+              initial="rest"
+              animate="rest"
+            >
+              RC
+            </motion.div>
+
+            <motion.h1
+              className="text-3xl font-bold text-blue-600"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.12, duration: 0.45 }}
+            >
+              Ravi Chatting App
+            </motion.h1>
+
+            <motion.p
+              className="text-sm text-gray-600 mt-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.25 }}
+            >
+              Made with ❤️ by Ravi
+            </motion.p>
+          </motion.div>
+
+          {/* Name Input */}
+          <motion.input
             type="text"
             placeholder="Enter your name"
             className="border p-2 rounded w-full max-w-md mb-4"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
           />
+
+          {/* Room ID + Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
-            <button
+            <motion.button
               onClick={createRoom}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg w-full sm:w-auto"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg w-full sm:w-auto cursor-pointer shadow-sm"
+              whileTap={btnTap}
+              whileHover={{ y: -2 }}
             >
               Create Room
-            </button>
-            <input
+            </motion.button>
+
+            <motion.input
               type="text"
               placeholder="Room ID"
               className="border p-2 rounded flex-1"
               value={roomId}
               onChange={(e) => setRoomId(e.target.value)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.42 }}
             />
-            <button
+
+            <motion.button
               onClick={joinRoom}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg w-full sm:w-auto"
+              className="px-4 py-2 bg-blue-600 text-white cursor-pointer rounded-lg w-full sm:w-auto shadow-sm"
+              whileTap={btnTap}
+              whileHover={{ y: -2 }}
             >
               Join Room
-            </button>
+            </motion.button>
           </div>
         </div>
-      ) : (
+      )}
+
+      {joinedRoom && (
         <div className="flex flex-col w-full h-full">
-          {/* Header */}
-          <div className="p-2 bg-gray-200 flex gap-2">
+          {/* Header / Controls */}
+          <div className="p-2 bg-gray-200 flex gap-2 w-full">
             <button
-              className="px-3 py-1 bg-gray-700 text-white rounded"
+              className="px-3 py-1 bg-gray-700 text-white cursor-pointer rounded"
               onClick={() => setShowRoomId(!showRoomId)}
             >
               {showRoomId ? "Hide Room ID" : "Show Room ID"}
             </button>
             <button
-              className="px-3 py-1 bg-gray-700 text-white rounded"
+              className="px-3 py-1 cursor-pointer bg-gray-700 text-white rounded"
               onClick={() => setShowPlayers(!showPlayers)}
             >
               {showPlayers ? "Hide Name" : "Show Name"}
             </button>
             <button
               onClick={leaveRoom}
-              className="px-3 py-1 bg-red-600 text-white rounded"
+              className="px-3 py-1 bg-red-600 text-white cursor-pointer rounded"
             >
               Leave Room
             </button>
@@ -170,48 +244,48 @@ export default function RoomChat() {
             </div>
           )}
 
-          {/* Chat area */}
-          <div
-            ref={chatContainerRef}
-            className="flex-1 overflow-y-auto p-3 pb-24 bg-gray-50 flex flex-col"
-          >
+          {/* 💬 Chat Area */}
+          <div className="flex-1 overflow-y-auto p-3 pb-24 bg-gray-50 flex flex-col min-h-0">
             {chat.map((c, i) => {
               const isMe = c.sender === username;
               return (
                 <div
                   key={i}
-                  className={`px-2 py-1 rounded-lg max-w-[80%] mb-1 ${
+                  className={`max-w-[75%] mb-2 px-3 py-2 rounded-xl break-words ${
                     isMe
-                      ? "bg-blue-500 text-white self-end"
+                      ? "bg-blue-500 text-white self-end rounded-br-none shadow-md"
                       : c.sender === "System"
-                      ? "bg-gray-300 text-gray-800 self-start italic"
-                      : "bg-green-200 text-gray-800 self-start"
+                      ? "bg-gray-300 text-gray-800 self-start italic rounded-xl"
+                      : "bg-green-200 text-gray-800 self-start rounded-bl-none shadow-md"
                   }`}
                 >
-                  {c.sender !== "System" && !isMe && <b>{c.sender}: </b>}
-                  {c.message}
+                  {!isMe && c.sender !== "System" && (
+                    <div className="text-sm font-semibold mb-1">{c.sender}</div>
+                  )}
+                  <div className="text-sm">{c.message}</div>
                 </div>
               );
             })}
-            <div ref={chatEndRef} />
+            <div ref={chatEndRef} /> {/* Auto-scroll target */}
           </div>
 
-          {/* Input */}
-          <div className="p-2 bg-white flex gap-2 border-t w-full fixed bottom-0 left-0 right-0">
+          {/* Input Box */}
+          <div className="p-2 bg-white flex gap-2 border-t w-full sticky bottom-0 left-0 right-0 z-10">
             <input
               type="text"
               placeholder="Type a message..."
-              className="flex-1 border p-2 rounded"
+              className="flex-1 border p-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
-            <button
+            <motion.button
+              className="px-4 py-2 bg-blue-600 text-white cursor-pointer rounded shadow"
               onClick={sendMessage}
-              className="px-4 py-2 bg-blue-600 text-white rounded"
+              whileTap={{ scale: 0.97 }}
             >
               Send
-            </button>
+            </motion.button>
           </div>
         </div>
       )}
