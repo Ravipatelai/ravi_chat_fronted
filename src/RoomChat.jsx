@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 
@@ -14,6 +14,13 @@ export default function RoomChat() {
 
   const [showRoomId, setShowRoomId] = useState(false);
   const [showPlayers, setShowPlayers] = useState(false);
+
+  const chatEndRef = useRef(null);
+
+  // 👇 Auto scroll when new message arrives
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat]);
 
   useEffect(() => {
     socket.on("player-list", (playerList) => setPlayers(playerList));
@@ -97,7 +104,7 @@ export default function RoomChat() {
     <div className="w-full h-[100dvh] flex flex-col bg-gray-100">
       {!joinedRoom && (
         <div className="flex-1 flex flex-col items-center justify-center p-4 w-full text-center">
-          {/* Animated Title + small animated logo */}
+          {/* Animated Title + Logo */}
           <motion.div
             initial="hidden"
             animate="show"
@@ -182,7 +189,7 @@ export default function RoomChat() {
 
       {joinedRoom && (
         <div className="flex flex-col w-full h-full">
-          {/* 🔝 Header / Controls */}
+          {/* Header / Controls */}
           <div className="p-2 bg-gray-200 flex gap-2 w-full">
             <button
               className="px-3 py-1 bg-gray-700 text-white cursor-pointer rounded"
@@ -229,7 +236,7 @@ export default function RoomChat() {
           )}
 
           {/* 💬 Chat Area */}
-          <div className="flex-1 overflow-y-auto p-3 bg-gray-50 flex flex-col-reverse min-h-0">
+          <div className="flex-1 overflow-y-auto p-3 bg-gray-50 flex flex-col min-h-0">
             {chat.map((c, i) => {
               const isMe = c.sender === username;
               return (
@@ -248,9 +255,10 @@ export default function RoomChat() {
                 </div>
               );
             })}
+            <div ref={chatEndRef} /> {/* 👈 Auto-scroll target */}
           </div>
 
-          {/* ⌨️ Input Fixed Bottom */}
+          {/* Input Box */}
           <div className="p-2 bg-white flex gap-2 border-t w-full sticky bottom-0">
             <input
               type="text"
@@ -258,6 +266,7 @@ export default function RoomChat() {
               className="flex-1 border p-2 rounded"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
             <motion.button
               className="px-4 py-2 bg-blue-600 text-white cursor-pointer rounded"
