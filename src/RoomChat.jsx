@@ -239,7 +239,7 @@ export default function RoomChat() {
           )}
 
           {/* Chat Area */}
-          <div className="flex-1 overflow-y-auto p-3 pb-24 flex flex-col">
+          <div className="flex-1 overflow-y-auto p-3 pb-5 flex flex-col">
             {chat.map((c, i) => {
               const isMe = c.sender === username;
               return (
