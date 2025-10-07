@@ -17,10 +17,19 @@ export default function RoomChat() {
 
   const chatEndRef = useRef(null);
 
-  // 👇 Auto scroll when new message arrives
+  // Auto scroll when new message arrives
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
+
+  // Auto scroll on mobile keyboard open (viewport resize)
+  useEffect(() => {
+    const handleResize = () => {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     socket.on("player-list", (playerList) => setPlayers(playerList));
@@ -101,7 +110,7 @@ export default function RoomChat() {
   const btnTap = { scale: 0.97 };
 
   return (
-    <div className="w-full h-[100dvh] flex flex-col bg-gray-100">
+    <div className="w-full h-[100vh] min-h-[100dvh] flex flex-col bg-gray-100">
       {!joinedRoom && (
         <div className="flex-1 flex flex-col items-center justify-center p-4 w-full text-center">
           {/* Animated Title + Logo */}
@@ -236,13 +245,13 @@ export default function RoomChat() {
           )}
 
           {/* 💬 Chat Area */}
-          <div className="flex-1 overflow-y-auto p-3 bg-gray-50 flex flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto p-3 pb-22 bg-gray-50 flex flex-col min-h-0">
             {chat.map((c, i) => {
               const isMe = c.sender === username;
               return (
                 <div
                   key={i}
-                  className={`px-2 py-1 rounded-lg max-w-[80%] mb-1 ${
+                  className={`px-2 py-1 rounded-lg max-w-[80%] mb-1  ${
                     isMe
                       ? "bg-blue-500 text-white self-end"
                       : c.sender === "System"
@@ -255,11 +264,11 @@ export default function RoomChat() {
                 </div>
               );
             })}
-            <div ref={chatEndRef} /> {/* 👈 Auto-scroll target */}
+            <div ref={chatEndRef} /> {/* Auto-scroll target */}
           </div>
 
-          {/* Input Box */}
-          <div className="p-2 bg-white flex gap-2 border-t w-full sticky bottom-0">
+          {/* Input Box (fixed) */}
+          <div className="p-2 bg-white flex gap-2 border-t w-full fixed bottom-0 left-0 right-0">
             <input
               type="text"
               placeholder="Type a message..."
