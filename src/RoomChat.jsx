@@ -251,7 +251,7 @@ export default function RoomChat() {
               return (
                 <div
                   key={i}
-                  className={`px-2 py-1 rounded-lg max-w-[80%] mb-1  ${
+                  className={`px-2 py-1 rounded-lg max-w-[40%] mb-1  ${
                     isMe
                       ? "bg-blue-500 text-white self-end"
                       : c.sender === "System"
